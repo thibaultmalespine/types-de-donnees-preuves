@@ -48,4 +48,31 @@ remove_assoc "Nicolas" exemple_assoc;;
 remove_assoc "Max" exemple_assoc;;
 
 """3.2 Maps"""
+type ('k, 'v) map = 'k -> 'v option;;
 
+let exemple_map : (string, int) map = fun key 
+-> match key with 
+|"Max" -> Some 10
+|"Nicolas" -> Some 4
+|"Nicole"-> Some 9
+| _ -> None ;;
+
+
+"""4 Règles de typage élémentaires"""
+type base_tp =
+  BoolT
+  | IntT;;
+
+type tp =
+  ConstT of base_tp
+  | FunT of tp * tp;;
+
+type const_expr =
+  BoolE of bool
+  | IntE of int;;
+
+type expr =
+  Const of const_expr
+  | Var of string
+  | Abs of string * tp * expr
+  | App of expr * expr;;
