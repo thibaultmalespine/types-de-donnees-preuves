@@ -1,7 +1,6 @@
  """ TD """
 """ environnement """
 
-
 let b = true;;
 let x = 3;;
 let p = fun (i:int) -> true;;
@@ -19,6 +18,54 @@ fun (y:int) -> p y;;
 
   """ TP """
 
+"""1 Fonctions d’ordre supérieur"""
+
+let mod_2 x = x mod 2 = 0 ;;
+predicat(2);;
+
+let liste = [1;2;3;4;5];;
+
+let rec map p liste = 
+  match liste with
+     e::liste -> p(e)::map(p)(liste) |
+     [] -> [];;
+
+map(mod_2)(liste);;
+
+let rec for_all p liste = 
+  match liste with 
+    e::liste -> p(e) && for_all(p)(liste) |
+    [] -> true;;
+
+for_all(mod_2)(liste);;
+for_all(mod_2)([2;4;6]);;
+for_all(mod_2)([]);;
+
+
+let rec exists p liste = 
+  match liste with 
+    e::liste -> p(e) || exists(p)(liste) |
+    [] -> false ;;
+
+exists(mod_2)(liste);;
+exists(mod_2)([]);;
+
+let rec filter p liste =
+  match liste with 
+    e::liste when p(e) = true -> e::filter(p)(liste) | 
+    e::liste -> filter(p)(liste) | 
+    [] -> [];;
+
+filter(mod_2)(liste);;
+
+let rec partition p liste =
+  match liste with 
+    e::liste when p(e) = true -> let l1, l2 = partition(p)(liste) in e::l1, l2 | 
+    e::liste -> let l1, l2 = partition(p)(liste) in l1, e::l2 | 
+    [] -> [],[];;
+
+partition(mod_2)(liste);;
+  
 """3 Interlude: Listes d’ association et maps"""
 
 """3.1 Listes d’association"""
