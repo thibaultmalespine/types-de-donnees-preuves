@@ -65,8 +65,55 @@ let rec partition p liste =
     [] -> [],[];;
 
 partition(mod_2)(liste);;
-  
-"""3 Interlude: Listes d’ association et maps"""
+
+"""2 - Représentation de Caml en Caml"""
+#EXERCICE_1
+type base_tp = BoolT | IntT;;
+
+type tp = ConstT of base_tp | FunT of tp * tp;;
+
+"Exemple : " int -> bool : 
+FunT (ConstT IntT, ConstT BoolT)
+
+1. int -> (bool -> int) : 
+FunT (ConstT IntT, FunT (ConstT BoolT, ConstT IntT))
+
+2. (int -> bool) -> int : 
+FunT (FunT (ConstT IntT, ConstT BoolT), ConstT IntT)
+
+3. (int -> int) -> (int -> int) : 
+FunT (FunT (ConstT IntT, ConstT IntT), FunT (ConstT IntT, ConstT IntT))
+
+
+#EXERCICE_2
+
+type const_expr = BoolE of bool | IntE of int
+
+type expr = 
+| Const of const_expr
+| Var of string
+| Abs of string * tp * expr
+| App of expr * expr 
+
+"Exemple : " (fun (x : int) -> x) 2 :
+App (Abs ("x", ConstT IntT, Var "x"), Const (IntE 2))
+
+1. ((fun (x : int) -> x) 2) 3 :
+App ( App ( Abs("x", ConstT IntT, Var "x"), Const (IntE 2)), Const (IntE 3))
+
+2. (fun (x : int) -> fun (y : bool) -> y) 2 3 :
+App (App ( Abs ("x", ConstT IntT, Abs ("y", ConstT BoolT, Var "y")) , Const (IntE 2)), Const (IntE 3))
+
+3. (fun (f:int -> bool) -> f 2) (fun (x:int) -> true) :
+App ()
+
+// représentation de 2+3 :
+Op "+" (Const (IntE 2)) (Const (IntE 3)) 
+
+// représentation de (2+3) < 5 :
+Op "<" (Op "+" (Const (IntE 2)) (Const (IntE 3))) (Const (IntE 5))
+
+"""3 - Interlude: Listes d’ association et maps"""
 
 """3.1 Listes d’association"""
 
