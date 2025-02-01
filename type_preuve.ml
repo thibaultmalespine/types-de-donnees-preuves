@@ -1,24 +1,4 @@
- """ TD """
-""" environnement """
-
-let b = true;;
-let x = 3;;
-let p = fun (i:int) -> true;;
-let f = fun (x : int) -> fun(y : int) -> x;;
-
-
-""" 2 - Vérification de typage de programmes fonctionnels """
-fun ( y:int ) -> f x y;;
-fun ( y:int ) -> f x;;
-fun (y:int) -> p y;;
-
-""" test """
-(fun (x : int) -> 2*x) 4;;
-
-
-  """ TP """
-
-"""1 Fonctions d’ordre supérieur"""
+(*1 Fonctions d’ordre supérieur*)
 
 let mod_2 x = x mod 2 = 0 ;;
 predicat(2);;
@@ -66,8 +46,8 @@ let rec partition p liste =
 
 partition(mod_2)(liste);;
 
-"""2 - Représentation de Caml en Caml"""
-#EXERCICE_1
+(*2 - Représentation de Caml en Caml*)
+(*EXERCICE_1*)
 type base_tp = BoolT | IntT;;
 
 type tp = ConstT of base_tp | FunT of tp * tp;;
@@ -85,17 +65,17 @@ FunT (FunT (ConstT IntT, ConstT BoolT), ConstT IntT)
 FunT (FunT (ConstT IntT, ConstT IntT), FunT (ConstT IntT, ConstT IntT))
 
 
-#EXERCICE_2
+(*EXERCICE_2*)
 
-type const_expr = BoolE of bool | IntE of int
+type const_expr = BoolE of bool | IntE of int;;
 
 type expr = 
 | Const of const_expr
 | Var of string
 | Abs of string * tp * expr
-| App of expr * expr 
+| App of expr * expr ;;
 
-"Exemple : " (fun (x : int) -> x) 2 :
+"Exemple : " (fun (x : int) -> x) 2  :
 App (Abs ("x", ConstT IntT, Var "x"), Const (IntE 2))
 
 1. ((fun (x : int) -> x) 2) 3 :
@@ -105,22 +85,55 @@ App ( App ( Abs("x", ConstT IntT, Var "x"), Const (IntE 2)), Const (IntE 3))
 App (App ( Abs ("x", ConstT IntT, Abs ("y", ConstT BoolT, Var "y")) , Const (IntE 2)), Const (IntE 3))
 
 3. (fun (f:int -> bool) -> f 2) (fun (x:int) -> true) :
-App ()
+App (Abs("f", FunT(ConstT IntT, ConstT BoolT), App( Var "f", Const (IntE 2))) , Abs ("x", ConstT IntT, Const (BoolE true)))
 
-// représentation de 2+3 :
-Op "+" (Const (IntE 2)) (Const (IntE 3)) 
 
-// représentation de (2+3) < 5 :
-Op "<" (Op "+" (Const (IntE 2)) (Const (IntE 3))) (Const (IntE 5))
+(*EXERCICE_3*)
 
-"""3 - Interlude: Listes d’ association et maps"""
+let rec string_of_type = function 
+  | ConstT c -> (match c with 
+    | BoolT -> "bool" 
+    | IntT  -> "int")
+  | FunT (e, s) -> "("^string_of_type(e) ^ " -> " ^ string_of_type(s)^")";;
 
-"""3.1 Listes d’association"""
+
+(* TEST *)
+string_of_type(FunT (ConstT IntT, ConstT BoolT));;
+string_of_type(FunT (ConstT IntT, FunT (ConstT BoolT, ConstT IntT)));;
+string_of_type(FunT (FunT (ConstT IntT, ConstT BoolT), ConstT IntT));;
+string_of_type(FunT (FunT (ConstT IntT, ConstT IntT), FunT (ConstT IntT, ConstT IntT)));;
+
+(*EXERCICE_4*)
+
+let rec string_of_expr = function
+  | Const c -> (match c with
+    | BoolE b -> string_of_bool(b)
+    | IntE i -> string_of_int(i)
+  )
+  | Var v -> v
+  | Abs (s, t, e) -> "fun ("^s^" : "^string_of_type(t)^") -> "^string_of_expr(e)
+  | App (e1, e2) -> "("^string_of_expr(e1)^") ("^string_of_expr(e2)^")";;
+
+(* TEST *)
+string_of_expr(App (Abs ("x", ConstT IntT, Var "x"), Const (IntE 2)));;
+string_of_expr(App ( App ( Abs("x", ConstT IntT, Var "x"), Const (IntE 2)), Const (IntE 3)));;
+string_of_expr(App (App ( Abs ("x", ConstT IntT, Abs ("y", ConstT BoolT, Var "y")) , Const (IntE 2)), Const (IntE 3)));;
+string_of_expr(App (Abs("f", FunT(ConstT IntT, ConstT BoolT), App( Var "f", Const (IntE 2))) , Abs ("x", ConstT IntT, Const (BoolE true))));;
+
+
+(* 3 - Interlude: Listes d’ association et maps *)
+
+let f = function x -> x mod 2 = 0;;
+(fun (f:int -> bool) -> f 2) (fun (x:int) -> true);;
+(fun (f : (int -> bool)) -> (f) 2) (fun (x : int) -> true);;
+(*3.1 Listes d’association*)
 
 type 'a option = None | Some of 'a ;;
 
 let exemple_assoc = [("Max", 10); ("Nicolas", 4); ("Nicole", 9)];;
 
+(*EXERCICE_5*)
+(* 1- *)
 let rec lookup_assoc cle liste = 
   match liste with   
   (nom, age)::liste when nom = cle -> Some age|
@@ -130,9 +143,11 @@ let rec lookup_assoc cle liste =
 lookup_assoc "Nicolas" exemple_assoc;;
 lookup_assoc "Maurice" exemple_assoc;;
 
+(* 2- *)
 let add_assoc (cle)(valeur)(liste) = (cle, valeur)::liste ;;  
 add_assoc "Mathéo" 20 exemple_assoc;;
 
+(* 3- *)
 let rec remove_assoc (cle)(liste) =
   match liste with 
   | (nom, age)::liste -> if cle = nom then remove_assoc(cle)(liste) else (nom,age)::remove_assoc(cle)(liste) 
@@ -141,9 +156,12 @@ let rec remove_assoc (cle)(liste) =
 remove_assoc "Nicolas" exemple_assoc;;
 remove_assoc "Max" exemple_assoc;;
 
-"""3.2 Maps"""
+(*3.2 Maps*)
 type ('k, 'v) map = 'k -> 'v option;;
 
+(*EXERCICE_6*)
+
+(* 1- *)
 let exemple_map : (string, int) map = fun key 
 -> match key with 
 |"Max" -> Some 10
@@ -152,7 +170,9 @@ let exemple_map : (string, int) map = fun key
 | _ -> None ;;
 
 
-"""4 Règles de typage élémentaires"""
+(*4 Règles de typage élémentaires*)
+
+(*EXERCICE_7*)
 type base_tp =
   BoolT
   | IntT;;
